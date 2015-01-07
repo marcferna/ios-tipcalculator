@@ -15,6 +15,8 @@ class ViewController: UIViewController {
   @IBOutlet weak var totalLabel: UILabel!
   @IBOutlet weak var tipSegmentedControl: UISegmentedControl!
   
+  var manuallyChangedTip: Bool! = false
+    
   override func viewDidLoad() {
     super.viewDidLoad()
     setupLabels()
@@ -27,8 +29,13 @@ class ViewController: UIViewController {
   }
   
   override func viewWillAppear(animated: Bool) {
-    setDefaultTipPercentage()
+    if (!manuallyChangedTip) {
+      setDefaultTipPercentage()
+    }
+    
   }
+  
+  // Help methods
   
   func setupLabels() {
     tipLabel.text   = "$0.00"
@@ -66,7 +73,7 @@ class ViewController: UIViewController {
     return tipPercentage
   }
 
-  // IBActions 
+  // IBActions
   
   @IBAction func onEditingChanged(sender: AnyObject) {
     var tipPercentage = tipPercentageFromControl()
@@ -76,6 +83,11 @@ class ViewController: UIViewController {
     
     tipLabel.text = String(format: "$%.2f", tip)
     totalLabel.text = String(format: "$%.2f", total)
+  }
+  
+  @IBAction func onSegmentedControlValueChanged(sender: AnyObject) {
+    manuallyChangedTip = true
+    onEditingChanged(amountField)
   }
 
   @IBAction func onTap(sender: AnyObject) {
