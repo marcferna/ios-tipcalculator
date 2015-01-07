@@ -15,14 +15,9 @@ class ViewController: UIViewController {
   @IBOutlet weak var totalLabel: UILabel!
   @IBOutlet weak var tipSegmentedControl: UISegmentedControl!
   
-  var tipPercentages = [0.15, 0.18, 0.2, 0.22, 0.25];
-  
   override func viewDidLoad() {
     super.viewDidLoad()
-    // Do any additional setup after loading the view, typically from a nib.
-    tipLabel.text = "$0.00"
-    totalLabel.text = "$0.00"
-    
+    setupLabels()
     setupTipSegmentedControl()
   }
 
@@ -31,8 +26,18 @@ class ViewController: UIViewController {
     // Dispose of any resources that can be recreated.
   }
   
+  override func viewWillAppear(animated: Bool) {
+    setDefaultTipPercentage()
+  }
+  
+  func setupLabels() {
+    tipLabel.text   = "$0.00"
+    totalLabel.text = "$0.00"
+  }
+  
   func setupTipSegmentedControl() {
     tipSegmentedControl.removeAllSegments()
+    var tipPercentages = Global.Constants.TipPercentages;
     for var index = 0; index < tipPercentages.count; ++index {
       var tipPercentage = tipPercentages[index] * 100
       tipSegmentedControl.insertSegmentWithTitle("\(Int(tipPercentage))%",
@@ -42,7 +47,17 @@ class ViewController: UIViewController {
     }
   }
   
+  func setDefaultTipPercentage() {
+    var defaults = NSUserDefaults.standardUserDefaults()
+    var percentageRow = defaults.objectForKey(Global.Constants.KeyDefaultTipPercentageIndex)?.integerValue
+    if (percentageRow != nil) {
+      tipSegmentedControl.selectedSegmentIndex = percentageRow!
+      onEditingChanged(amountField)
+    }
+  }
+  
   func tipPercentageFromControl() -> Double {
+    var tipPercentages = Global.Constants.TipPercentages;
     var tipPercentage = 0.0
     var selectedIndex = tipSegmentedControl.selectedSegmentIndex
     if (selectedIndex >= 0 && selectedIndex < tipPercentages.count) {
@@ -51,6 +66,8 @@ class ViewController: UIViewController {
     return tipPercentage
   }
 
+  // IBActions 
+  
   @IBAction func onEditingChanged(sender: AnyObject) {
     var tipPercentage = tipPercentageFromControl()
     var billAmount = amountField.text._bridgeToObjectiveC().doubleValue
